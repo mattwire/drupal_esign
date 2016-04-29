@@ -1,0 +1,5 @@
+<?php
+  /**
+   * @file
+   * Defines all hooks and functions to manage the e-sign field.
+   */
