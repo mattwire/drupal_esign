@@ -1,5 +1,61 @@
 <?php
-  /**
-   * @file
-   * Defines all hooks and functions to manage the e-sign field.
-   */
+/**
+ * @file
+ * Defines all hooks and functions to manage the e-sign field.
+ */
+
+/**
+ * Implements hook_field_info
+ */
+function esign_field_info() {
+  return array(
+    'esign_signature' => array(
+      'label' => t('E-Signature'),
+      'description' => t('An electronic signature'),
+      'default_widget' => 'esign_widget',
+      'default_formatter' => 'esign_formatter',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function esign_field_formatter_info() {
+  return array(
+    'esign_formatter' => array(
+      'label' => t('E-Signature Formatter'),
+      'description' => t('Formats the display of an electronic signature.'),
+      'field types' => array('esign_signature'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function esign_field_widget_info() {
+  return array(
+    'esign_widget' => array(
+      'label' => t('E-Signature'),
+      'field types' => array('esign_signature'),
+    ),
+  );
+}
+
+// /**
+//  * Implements hook_field_formatter_view().
+//  */
+// function esign_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+//   $element = array();
+//   switch ($display['type']) {
+//     // This formatter simply outputs the field as text and with a color.
+//     case 'esign_formatter':
+//       foreach ($items as $delta => $item) {
+//         $element[$delta]['#markup'] = '<p>SIGNATURE HERE</p>';
+//       }
+//       break;
+//   }
+//   return $element;
+// }
+
