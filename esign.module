@@ -36,6 +36,7 @@ function esign_field_formatter_info() {
  * Implements hook_field_widget_info().
  */
 function esign_field_widget_info() {
+  // Include the default settings, too!
   return array(
     'esign_signature_widget' => array(
       'label' => t('E-Signature'),
@@ -58,13 +59,13 @@ function esign_field_widget_info() {
 /**
  * Implements hook_field_widget_settings_form
  */
-function esign_field_widget_settings_form($field, $instance){
+function esign_field_widget_settings_form($field, $instance) {
   $widget = $instance['widget'];
   $settings = $widget['settings'];
 
   $form = array();
 
-  if($widget['type'] == 'esign_signature_widget'){
+  if($widget['type'] == 'esign_signature_widget') {
     $form['advanced_settings'] = array(
       '#type' => 'fieldset',
       '#title' => t('Advanced Settings'),
@@ -130,28 +131,25 @@ function esign_field_widget_settings_form($field, $instance){
       '#description' => t('Weight used to modify new velocity based on the previous velocity.'),
     );
   }
-
   return $form;
 }
 
 /**
  * Implements hook_field_widget_form
  */
-function esign_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element){
+function esign_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
   // Parse the settings into a string.
   $settings = $instance['widget']['settings']['advanced_settings'];
 
+  // We only need this for this field.
   switch ($instance['widget']['type']) {
     case 'esign_signature_widget' :
       if (isset($field['cardinality']) && $field['cardinality'] == 1) {
         $element['#type'] = 'fieldset';
       }
-
       $element = esign_signature_form_base($langcode, $items, $delta, $element, $settings);
-
       break;
   }
-
   return $element;
 }
 
@@ -159,7 +157,7 @@ function esign_field_widget_form(&$form, &$form_state, $field, $instance, $langc
  * Implements hook_field_is_empty
  * @todo: Figure out what this does, other than cause problems.
  */
-function esign_field_is_empty($item, $field){
+function esign_field_is_empty($item, $field) {
   return FALSE;
 }
 
@@ -180,7 +178,6 @@ function esign_libraries_info() {
       'js' => array('signature_pad.min.js'),
     ),
   );
-
   return $libraries;
 }
 
@@ -205,14 +202,13 @@ function esign_field_formatter_view($entity_type, $entity, $field, $instance, $l
       }
       break;
   }
-
- return $element;
+  return $element;
 }
 
 /**
  * Implements hook_element_info
  */
-function esign_element_info(){
+function esign_element_info() {
   return array(
     'esign_signature' => array(
       '#input' => TRUE, // boolean indicating whether or not this element carries a value (even if it's hidden).
@@ -224,61 +220,62 @@ function esign_element_info(){
 }
 
 /**
- * Element processing
+ * Element processing from hook_element_info.
+ * Helps generate the field for FAPI.
  */
-function esign_form_process($element, $form_state, $complete_form = array()){
+function esign_form_process($element, $form_state, $complete_form = array()) {
   // Get the default settings.
   $settings = esign_field_widget_info();
   $settings = $settings['esign_signature_widget']['settings'];
 
   // Override the default settings with the ones passed in via the form.
-  if(isset($element['#esign_options']) && count($element['#esign_options']) > 0){
+  if(isset($element['#esign_options']) && count($element['#esign_options']) > 0) {
     $settings = array_merge($settings, $element['#esign_options']);
   }
-  
   $element = esign_signature_form_base(LANGUAGE_NONE, array(), $element['#name'], $element, $settings);
-
   $element['#tree'] = TRUE;
-  
   return $element;
 }
 
 /**
  * Callback for the signature form base.
+ * @todo: Elimnate extraneous JS code.
  */
-function esign_signature_form_base($langcode, $items, $delta, $element, $settings){
-  if(isset($element['#field_name'])){
+function esign_signature_form_base($langcode, $items, $delta, $element, $settings) {
+  if(isset($element['#field_name'])) {
     $field_name = $element['#field_name'] . '[' . $langcode . '][' . $delta . ']';
   }else{
     $field_name = $element['#name'];
   }
   
   $settingsString = '';
-  foreach($settings as $key => $value){
+  foreach($settings as $key => $value) {
     $settingsString .= "$key:'$value',\r\n";
   }
 
   // Load the signature pad library.
+  // Note this is a lot of inline javascript, unfortunately.
+  // I'll try to think of a better way around this.
   if (($library = libraries_load('signature_pad')) && !empty($library['loaded'])) {
-    drupal_add_js('var canvas_' . $delta . ';var signaturePad_' . $delta . ';(function($){
-      $(document).ready(function(){
+    drupal_add_js('var canvas_' . $delta . ';var signaturePad_' . $delta . ';(function($) {
+      $(document).ready(function() {
         var signatureCapture = $("input[name=\"' . $field_name . '[esignature]\"]");
 
         canvas_' . $delta . ' = document.querySelector(".esign_panel_' . $delta . ' canvas");
         signaturePad_' . $delta . ' = new SignaturePad(canvas_' . $delta . ', {
           ' . $settingsString . '
-          onEnd: function(){
+          onEnd: function() {
             signatureCapture.val(signaturePad_' . $delta . '.toDataURL());
           }
         });
 
         $(".esign_panel_' . $delta . '").append("<br/><a href=\"#\" class=\"clear\">' . t('Clear') . '</a>");
-        $(".esign_panel_' . $delta . ' .clear").click(function(e){
+        $(".esign_panel_' . $delta . ' .clear").click(function(e) {
           e.preventDefault();
           javascript:signaturePad_' . $delta . '.clear();
           signatureCapture.val("");
         });
-        if($(".esign_panel_' . $delta . '").attr("data-signature")){
+        if($(".esign_panel_' . $delta . '").attr("data-signature")) {
           signaturePad_' . $delta . '.fromDataURL(decodeURIComponent($(".esign_panel_' . $delta . '").attr("data-signature")));
           $("input[name=\"' . $field_name . '[esignature]\"]").val(signaturePad_' . $delta . '.toDataURL());
         }
