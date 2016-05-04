@@ -52,18 +52,19 @@ function esign_field_schema($field) {
 function esign_requirements($phase) {
   $t = get_t();
   $requirements = array();
-  
-  if ($phase == 'runtime'){
+
+  if ($phase == 'runtime') {
     $requirements['signature_pad'] = array(
       'title' => $t('Signature Pad'),
     );
 
     $library = libraries_detect('signature_pad');
 
-    if (isset($library['error'])){
+    if (isset($library['error'])) {
       $requirements['signature_pad']['severity'] = REQUIREMENT_ERROR;
       $requirements['signature_pad']['value'] = $library['error message'];
-    } else {
+    }
+    else {
       $requirements['signature_pad']['severity'] = REQUIREMENT_OK;
       $requirements['signature_pad']['value'] = $t('@version (<a href="@url">more information</a>)', array(
         '@version' => $library['version'],
