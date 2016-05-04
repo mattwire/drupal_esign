@@ -1,8 +1,9 @@
 <?php
 /**
  * @file
- * Defines all hooks and functions to manage the e-sign field for both content
- * (nodes) as well as the FieldAPI.
+ * Defines all hooks and functions to manage the e-sign field.
+ *
+ * This is for both content(nodes) as well as the FieldAPI.
  */
 
 /**
@@ -57,7 +58,7 @@ function esign_field_widget_info() {
 }
 
 /**
- * Implements hook_field_widget_settings_form
+ * Implements hook_field_widget_settings_form().
  */
 function esign_field_widget_settings_form($field, $instance) {
   $widget = $instance['widget'];
@@ -65,12 +66,12 @@ function esign_field_widget_settings_form($field, $instance) {
 
   $form = array();
 
-  if($widget['type'] == 'esign_signature_widget') {
+  if ($widget['type'] == 'esign_signature_widget') {
     $form['advanced_settings'] = array(
       '#type' => 'fieldset',
       '#title' => t('Advanced Settings'),
-      '#collapsible' => true,
-      '#collapsed' => true,
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
     );
 
     $form['advanced_settings']['dotSize'] = array(
@@ -78,7 +79,7 @@ function esign_field_widget_settings_form($field, $instance) {
       '#title' => t('Dot Size'),
       '#default_value' => $settings['dotSize'],
       '#element_validate' => array('element_validate_number'),
-      '#required' => true,
+      '#required' => TRUE,
       '#size' => 5,
       '#description' => t('Radius of a single dot.'),
     );
@@ -88,7 +89,7 @@ function esign_field_widget_settings_form($field, $instance) {
       '#title' => t('Minimum Width'),
       '#default_value' => $settings['minWidth'],
       '#element_validate' => array('element_validate_number'),
-      '#required' => true,
+      '#required' => TRUE,
       '#size' => 5,
       '#description' => t('Minimum width of a line'),
     );
@@ -98,7 +99,7 @@ function esign_field_widget_settings_form($field, $instance) {
       '#title' => t('Maximum Width'),
       '#default_value' => $settings['maxWidth'],
       '#element_validate' => array('element_validate_number'),
-      '#required' => true,
+      '#required' => TRUE,
       '#size' => 5,
       '#description' => t('Maximum width of a line.'),
     );
@@ -107,7 +108,7 @@ function esign_field_widget_settings_form($field, $instance) {
       '#type' => 'textfield',
       '#title' => t('Background Color'),
       '#default_value' => $settings['backgroundColor'],
-      '#required' => true,
+      '#required' => TRUE,
       '#size' => 15,
       '#description' => t('Color used to clear the background. Use the format rgba(#,#,#,#).'),
     );
@@ -116,7 +117,7 @@ function esign_field_widget_settings_form($field, $instance) {
       '#type' => 'textfield',
       '#title' => t('Pen Color'),
       '#default_value' => $settings['penColor'],
-      '#required' => true,
+      '#required' => TRUE,
       '#size' => 15,
       '#description' => t('Color used to draw the lines. Use the format rgba(#,#,#,#).'),
     );
@@ -126,7 +127,7 @@ function esign_field_widget_settings_form($field, $instance) {
       '#title' => t('Velocity Filter Weight'),
       '#default_value' => $settings['velocityFilterWeight'],
       '#element_validate' => array('element_validate_number'),
-      '#required' => true,
+      '#required' => TRUE,
       '#size' => 5,
       '#description' => t('Weight used to modify new velocity based on the previous velocity.'),
     );
@@ -135,7 +136,7 @@ function esign_field_widget_settings_form($field, $instance) {
 }
 
 /**
- * Implements hook_field_widget_form
+ * Implements hook_field_widget_form().
  */
 function esign_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
   // Parse the settings into a string.
@@ -143,7 +144,7 @@ function esign_field_widget_form(&$form, &$form_state, $field, $instance, $langc
 
   // We only need this for this field.
   switch ($instance['widget']['type']) {
-    case 'esign_signature_widget' :
+    case 'esign_signature_widget':
       if (isset($field['cardinality']) && $field['cardinality'] == 1) {
         $element['#type'] = 'fieldset';
       }
@@ -154,7 +155,8 @@ function esign_field_widget_form(&$form, &$form_state, $field, $instance, $langc
 }
 
 /**
- * Implements hook_field_is_empty
+ * Implements hook_field_is_empty().
+ *
  * @todo: Figure out what this does, other than cause problems.
  */
 function esign_field_is_empty($item, $field) {
@@ -171,7 +173,7 @@ function esign_libraries_info() {
     'download url' => 'https://github.com/szimek/signature_pad/archive/master.zip',
     'version arguments' => array(
       'file' => 'signature_pad.js',
-      'pattern' => '@Signature Pad v([0-9a-zA-Z\.-]+)@', 
+      'pattern' => '@Signature Pad v([0-9a-zA-Z\.-]+)@',
       'lines' => 20,
     ),
     'files' => array(
@@ -206,13 +208,13 @@ function esign_field_formatter_view($entity_type, $entity, $field, $instance, $l
 }
 
 /**
- * Implements hook_element_info
+ * Implements hook_element_info().
  */
 function esign_element_info() {
   return array(
     'esign_signature' => array(
-      '#input' => TRUE, // boolean indicating whether or not this element carries a value (even if it's hidden).
-      '#process' => array('esign_form_process'), // array of callback functions taking $element, $form_state, and $complete_form.
+      '#input' => TRUE,
+      '#process' => array('esign_form_process'),
       '#tree' => TRUE,
       '#esign_options' => array(),
     ),
@@ -239,18 +241,20 @@ function esign_form_process($element, $form_state, $complete_form = array()) {
 
 /**
  * Callback for the signature form base.
+ *
  * @todo: Elimnate extraneous JS code.
  */
 function esign_signature_form_base($langcode, $items, $delta, $element, $settings) {
-  if(isset($element['#field_name'])) {
+  if (isset($element['#field_name'])) {
     $field_name = $element['#field_name'] . '[' . $langcode . '][' . $delta . ']';
-  }else{
+  }
+  else {
     $field_name = $element['#name'];
   }
-  
-  $settingsString = '';
-  foreach($settings as $key => $value) {
-    $settingsString .= "$key:'$value',\r\n";
+
+  $settings_string = '';
+  foreach ($settings as $key => $value) {
+    $settings_string .= "$key:'$value',\r\n";
   }
 
   // Load the signature pad library.
@@ -263,7 +267,7 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
 
         canvas_' . $delta . ' = document.querySelector(".esign_panel_' . $delta . ' canvas");
         signaturePad_' . $delta . ' = new SignaturePad(canvas_' . $delta . ', {
-          ' . $settingsString . '
+          ' . $settings_string . '
           onEnd: function() {
             signatureCapture.val(signaturePad_' . $delta . '.toDataURL());
           }
@@ -281,7 +285,8 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
         }
       });
     })(jQuery);', 'inline');
-  }else{
+  }
+  else {
     watchdog('esign', 'Failed to load Signature Pad library.', array(), WATCHDOG_ERROR);
     drupal_set_error(t('There was an error loading the Signature Pad library.'));
   }
@@ -296,7 +301,7 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
     '#type' => 'hidden',
     '#default_value' => isset($items[$delta]['esignature']) ? $items[$delta]['esignature'] : '',
   );
-  
+
   $element['signer_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Signer Name'),
@@ -305,7 +310,7 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
     '#size' => 60,
     '#attributes' => array('maxlength' => 255),
   );
-  
+
   $element['signer_title'] = array(
     '#type' => 'textfield',
     '#title' => t('Signer Title'),

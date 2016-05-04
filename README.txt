@@ -20,8 +20,8 @@ Installation instructions
    (usually "sites/all/libraries").
    Link: https://github.com/szimek/signature_pad
 
-2. Download and extract the Esign (this) module into the modules directory (usually
-   "sites/all/modules").
+2. Download and extract the Esign (this) module into the modules directory
+   (usually "sites/all/modules").
    Link: http://drupal.org/project/esign
 
 3. Go to "Administer" -> "Modules" and enable the module.
