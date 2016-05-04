@@ -223,6 +223,7 @@ function esign_element_info() {
 
 /**
  * Element processing from hook_element_info.
+ *
  * Helps generate the field for FAPI.
  */
 function esign_form_process($element, $form_state, $complete_form = array()) {
@@ -231,7 +232,7 @@ function esign_form_process($element, $form_state, $complete_form = array()) {
   $settings = $settings['esign_signature_widget']['settings'];
 
   // Override the default settings with the ones passed in via the form.
-  if(isset($element['#esign_options']) && count($element['#esign_options']) > 0) {
+  if (isset($element['#esign_options']) && count($element['#esign_options']) > 0) {
     $settings = array_merge($settings, $element['#esign_options']);
   }
   $element = esign_signature_form_base(LANGUAGE_NONE, array(), $element['#name'], $element, $settings);
