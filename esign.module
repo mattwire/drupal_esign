@@ -333,7 +333,7 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
  *
  * Cribbed from https://www.drupal.org/node/161085
  */
-function esign_help($path, $arg){
+function esign_help($path, $arg) {
   switch ($path) {
     case 'admin/help#MYMODULE':
 
