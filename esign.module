@@ -289,7 +289,7 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
   }
   else {
     watchdog('esign', 'Failed to load Signature Pad library.', array(), WATCHDOG_ERROR);
-    drupal_set_error(t('There was an error loading the Signature Pad library.'));
+    form_set_error(t('There was an error loading the Signature Pad library.'));
   }
 
   $element['esignature_panel'] = array(
@@ -326,4 +326,45 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
     '#value' => strtotime('now'),
   );
   return $element;
+}
+
+/**
+ * Implements hook_help().
+ *
+ * Cribbed from https://www.drupal.org/node/161085
+ */
+function esign_help($path, $arg){
+  switch ($path) {
+    case 'admin/help#MYMODULE':
+
+      $filepath = dirname(__FILE__) . '/README.md';
+      if (file_exists($filepath)) {
+        $readme = file_get_contents($filepath);
+      }
+      else {
+        $filepath = dirname(__FILE__) . '/README.txt';
+        if (file_exists($filepath)) {
+          $readme = file_get_contents($filepath);
+        }
+      }
+      if (!isset($readme)) {
+        return NULL;
+      }
+      if (module_exists('markdown')) {
+        $filters = module_invoke('markdown', 'filter_info');
+        $info = $filters['filter_markdown'];
+
+        if (function_exists($info['process callback'])) {
+          $output = $info['process callback']($readme, NULL);
+        }
+        else {
+          $output = '<pre>' . $readme . '</pre>';
+        }
+      }
+      else {
+        $output = '<pre>' . $readme . '</pre>';
+      }
+
+      return $output;
+  }
 }
