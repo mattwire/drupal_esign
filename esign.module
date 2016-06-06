@@ -254,7 +254,7 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
   }
 
   $title = t('Signature');
-  if(isset($element['#title']) && $element['#title']){
+  if (isset($element['#title']) && $element['#title']) {
     $title = check_plain($element['#title']);
   }
 
@@ -355,8 +355,8 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
     '#prefix' => '</div>',
   );
 
-  if(isset($element['#value']) && is_array($element['#value'])) {
-    foreach($element['#value'] as $field_name => $default_value) {
+  if (isset($element['#value']) && is_array($element['#value'])) {
+    foreach ($element['#value'] as $field_name => $default_value) {
       $element[$field_name]['#default_value'] = $default_value;
     }
   }
