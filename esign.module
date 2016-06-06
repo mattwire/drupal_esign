@@ -253,6 +253,11 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
     $field_name = $element['#name'];
   }
 
+  $title = t('Signature');
+  if(isset($element['#title']) && $element['#title']){
+    $title = check_plain($element['#title']);
+  }
+
   $settings_string = '';
   foreach ($settings as $key => $value) {
     $settings_string .= "$key:'$value',\r\n";
@@ -280,10 +285,32 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
           javascript:signaturePad_' . $delta . '.clear();
           signatureCapture.val("");
         });
+
+        resizeCanvas(canvas_' . $delta . ');
+
         if($(".esign_panel_' . $delta . '").attr("data-signature")) {
           signaturePad_' . $delta . '.fromDataURL(decodeURIComponent($(".esign_panel_' . $delta . '").attr("data-signature")));
           $("input[name=\"' . $field_name . '[esignature]\"]").val(signaturePad_' . $delta . '.toDataURL());
         }
+
+        if(signatureCapture.val()) {
+          signaturePad_' . $delta . '.fromDataURL(decodeURIComponent(signatureCapture.val()));
+        }
+
+      });
+
+      function resizeCanvas(canvas) {
+        // When zoomed out to less than 100%, for some very strange reason,
+        // some browsers report devicePixelRatio as less than 1
+        // and only part of the canvas is cleared then.
+        var ratio =  Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext("2d").scale(ratio, ratio);
+      }
+
+      $(window).resize(function(){
+        // resizeCanvas(canvas_' . $delta . ');
       });
     })(jQuery);', 'inline');
   }
@@ -293,8 +320,9 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
   }
 
   $element['esignature_panel'] = array(
+    '#prefix' => '<div class="esign_container">',
     '#type' => 'item',
-    '#title' => t('Signature'),
+    '#title' => $title,
     '#markup' => '<div class="esign_panel esign_panel_' . $delta . '" data-signature="' . urlencode(isset($items[$delta]['esignature']) ? $items[$delta]['esignature'] : '') . '"><canvas></canvas></div>',
   );
 
@@ -324,7 +352,15 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
   $element['created'] = array(
     '#type' => 'hidden',
     '#value' => strtotime('now'),
+    '#prefix' => '</div>',
   );
+
+  if(isset($element['#value']) && is_array($element['#value'])) {
+    foreach($element['#value'] as $field_name => $default_value) {
+      $element[$field_name]['#default_value'] = $default_value;
+    }
+  }
+
   return $element;
 }
 
