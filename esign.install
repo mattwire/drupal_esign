@@ -12,6 +12,7 @@ function esign_field_schema($field) {
   $columns = array(
     'esignature' => array(
       'type' => 'text',
+      'size' => 'big',
       'not_null' => FALSE,
     ),
     'signer_name' => array(
