@@ -268,8 +268,9 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
   // I'll try to think of a better way around this.
   if (($library = libraries_load('signature_pad')) && !empty($library['loaded'])) {
     drupal_add_js('var canvas_' . $delta . ';var signaturePad_' . $delta . ';(function($) {
+      var signatureCapture;
       $(document).ready(function() {
-        var signatureCapture = $("input[name=\"' . $field_name . '[esignature]\"]");
+        signatureCapture = $("input[name=\"' . $field_name . '[esignature]\"]");
 
         canvas_' . $delta . ' = document.querySelector(".esign_panel_' . $delta . ' canvas");
         signaturePad_' . $delta . ' = new SignaturePad(canvas_' . $delta . ', {
@@ -284,6 +285,7 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
           e.preventDefault();
           javascript:signaturePad_' . $delta . '.clear();
           signatureCapture.val("");
+          resizeCanvas(canvas_' . $delta . ');
         });
 
         resizeCanvas(canvas_' . $delta . ');
@@ -303,14 +305,24 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
         // When zoomed out to less than 100%, for some very strange reason,
         // some browsers report devicePixelRatio as less than 1
         // and only part of the canvas is cleared then.
+        if(!signaturePad_' . $delta . '.isEmpty()){
+          signatureCapture.val(signaturePad_' . $delta . '.toDataURL());
+        }
         var ratio =  Math.max(window.devicePixelRatio || 1, 1);
         canvas.width = canvas.offsetWidth * ratio;
         canvas.height = canvas.offsetHeight * ratio;
         canvas.getContext("2d").scale(ratio, ratio);
+        if(signatureCapture.val()){
+          signaturePad_' . $delta . '.fromDataURL(decodeURIComponent(signatureCapture.val()));
+        }
       }
 
       $(window).resize(function(){
         // resizeCanvas(canvas_' . $delta . ');
+      });
+
+      $(window).on("orientationchange",function(){
+        resizeCanvas(canvas_' . $delta . ');
       });
     })(jQuery);', 'inline');
   }
