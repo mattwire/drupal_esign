@@ -160,6 +160,9 @@ function esign_field_widget_form(&$form, &$form_state, $field, $instance, $langc
  * @todo: Figure out what this does, other than cause problems.
  */
 function esign_field_is_empty($item, $field) {
+  if (empty($item['esignature']) && empty($item['signer_name']) && empty($item['signer_title'])) {
+    return TRUE;
+  }
   return FALSE;
 }
 
@@ -246,6 +249,9 @@ function esign_form_process($element, $form_state, $complete_form = array()) {
  * @todo: Elimnate extraneous JS code.
  */
 function esign_signature_form_base($langcode, $items, $delta, $element, $settings) {
+  $field_name = $element['#field_name'];
+  $field_info = $element['#entity']->$field_name;
+
   if (isset($element['#field_name'])) {
     $field_name = $element['#field_name'] . '[' . $langcode . '][' . $delta . ']';
   }
@@ -269,59 +275,77 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
   if (($library = libraries_load('signature_pad')) && !empty($library['loaded'])) {
     drupal_add_js('var canvas_' . $delta . ';var signaturePad_' . $delta . ';(function($) {
       var signatureCapture;
+
+      Drupal.behaviors.esign_' . $delta . ' = {
+        attach: function (context, settings) {
+          generateFieldInfo();
+        },
+        detach: function (context, settings) {
+          generateFieldInfo();
+        }
+      };
+
       $(document).ready(function() {
+        generateFieldInfo();
+      });
+
+      function generateFieldInfo() {
+        // Assign the hidden field (that saves the signature) to a variable.
         signatureCapture = $("input[name=\"' . $field_name . '[esignature]\"]");
 
+        // Set the canvas to a variable.
         canvas_' . $delta . ' = document.querySelector(".esign_panel_' . $delta . ' canvas");
+
+        // Instantiate the signaturepad itself.
         signaturePad_' . $delta . ' = new SignaturePad(canvas_' . $delta . ', {
           ' . $settings_string . '
           onEnd: function() {
+            // When a signature is done being signed, set the hidden field to contain the data.
             signatureCapture.val(signaturePad_' . $delta . '.toDataURL());
+
+            // Also set the data-signature value.
+            $(".esign_panel_' . $delta . '").attr("data-signature", signaturePad_' . $delta . '.toDataURL());
           }
         });
 
-        $(".esign_panel_' . $delta . '").append("<br/><a href=\"#\" class=\"clear\">' . t('Clear') . '</a>");
+        // Add the "clear" button.
+        $(".esign_panel_' . $delta . ' .clear-container").remove();
+        $(".esign_panel_' . $delta . '").append("<div class=\"clear-container\"><br/><a href=\"#\" class=\"clear\">' . t('Clear') . '</a></div>");
+
+        // Make the clear button work.
         $(".esign_panel_' . $delta . ' .clear").click(function(e) {
           e.preventDefault();
           javascript:signaturePad_' . $delta . '.clear();
           signatureCapture.val("");
+          $(".esign_panel_' . $delta . '").attr("data-signature", "");
           resizeCanvas(canvas_' . $delta . ');
         });
 
+        // Call the "resize" function for high-DPI screens.
         resizeCanvas(canvas_' . $delta . ');
-
-        if($(".esign_panel_' . $delta . '").attr("data-signature")) {
-          signaturePad_' . $delta . '.fromDataURL(decodeURIComponent($(".esign_panel_' . $delta . '").attr("data-signature")));
-          $("input[name=\"' . $field_name . '[esignature]\"]").val(signaturePad_' . $delta . '.toDataURL());
-        }
-
-        if(signatureCapture.val()) {
-          signaturePad_' . $delta . '.fromDataURL(decodeURIComponent(signatureCapture.val()));
-        }
-
-      });
+      }
 
       function resizeCanvas(canvas) {
         // When zoomed out to less than 100%, for some very strange reason,
         // some browsers report devicePixelRatio as less than 1
         // and only part of the canvas is cleared then.
-        if(!signaturePad_' . $delta . '.isEmpty()){
+        if (!signaturePad_' . $delta . '.isEmpty()) {
           signatureCapture.val(signaturePad_' . $delta . '.toDataURL());
         }
         var ratio =  Math.max(window.devicePixelRatio || 1, 1);
         canvas.width = canvas.offsetWidth * ratio;
         canvas.height = canvas.offsetHeight * ratio;
         canvas.getContext("2d").scale(ratio, ratio);
-        if(signatureCapture.val()){
+        if (signatureCapture.val()) {
           signaturePad_' . $delta . '.fromDataURL(decodeURIComponent(signatureCapture.val()));
         }
       }
 
-      $(window).resize(function(){
+      $(window).resize(function() {
         // resizeCanvas(canvas_' . $delta . ');
       });
 
-      $(window).on("orientationchange",function(){
+      $(window).on("orientationchange",function() {
         resizeCanvas(canvas_' . $delta . ');
       });
     })(jQuery);', 'inline');
@@ -414,5 +438,19 @@ function esign_help($path, $arg) {
       }
 
       return $output;
+  }
+}
+
+/**
+ * Better array walk recursive.
+ */
+function esign_array_walk_recursive(&$array, $callback, $arguments = '') {
+  foreach($array as $key => $value) {
+    if (is_array($value)) {
+      esign_array_walk_recursive($array, $callback, $arguments);
+    }
+    else {
+      call_user_func($callback, $arguments);
+    }
   }
 }
