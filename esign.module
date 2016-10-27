@@ -273,6 +273,7 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
   // Note this is a lot of inline javascript, unfortunately.
   // I'll try to think of a better way around this.
   if (($library = libraries_load('signature_pad')) && !empty($library['loaded'])) {
+    $clear = t('Clear');
     drupal_add_js('var canvas_' . $delta . ';var signaturePad_' . $delta . ';(function($) {
       var signatureCapture;
 
@@ -310,7 +311,7 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
 
         // Add the "clear" button.
         $(".esign_panel_' . $delta . ' .clear-container").remove();
-        $(".esign_panel_' . $delta . '").append("<div class=\"clear-container\"><br/><a href=\"#\" class=\"clear\">' . t('Clear') . '</a></div>");
+        $(".esign_panel_' . $delta . '").append("<div class=\"clear-container\"><br/><a href=\"#\" class=\"clear\">' . $clear . '</a></div>");
 
         // Make the clear button work.
         $(".esign_panel_' . $delta . ' .clear").click(function(e) {

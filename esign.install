@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Defines schema and other install-related items.
