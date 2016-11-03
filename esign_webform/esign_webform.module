@@ -138,7 +138,8 @@ function _webform_theme_esign() {
 function esign_webform_webform_validation_validators() {
   return array(
     'esignature_signed' => array(
-      'name' => 'Signature Field Signed', 'component_types' => array(
+      'name' => 'Signature Field Signed',
+      'component_types' => array(
         'esign',
       ),
       'custom_error' => TRUE,
@@ -159,6 +160,7 @@ function esign_webform_webform_validation_validate($validator_name, $items, $com
         $errors = esign_webform_signature_signed($items, $rule);
         return $errors;
         break;
+
     }
   }
 }
@@ -166,7 +168,7 @@ function esign_webform_webform_validation_validate($validator_name, $items, $com
 /**
  * Format the output of data for this component.
  */
-function theme_webform_display_esign( $variables ) {
+function theme_webform_display_esign($variables) {
   $element = $variables['element'];
   $value = $element['#format'] == 'html' ? $element['#value'] : $element['#value'];
   return $value !== '' ? $value : '';
@@ -175,7 +177,7 @@ function theme_webform_display_esign( $variables ) {
 /**
  * Return the result of a component value for display in a table.
  */
-function _webform_table_esign( $component, $value ) {
+function _webform_table_esign($component, $value) {
   $signature = array();
   if (isset($value['esignature']) && $value['esignature']) {
     $signature[] = t('Signed');
@@ -200,7 +202,7 @@ function _webform_table_esign( $component, $value ) {
 /**
  * Return the heading for this component to be displayed in a CSV file.
  */
-function _webform_csv_headers_esign( $component, $export_options ) {
+function _webform_csv_headers_esign($component, $export_options) {
   $header = array();
   $header[0] = '';
   $header[1] = '';
@@ -224,7 +226,7 @@ function _webform_csv_headers_esign( $component, $export_options ) {
 /**
  * Format the submitted data of a component for CSV downloading.
  */
-function _webform_csv_data_esign( $component, $export_options, $value ) {
+function _webform_csv_data_esign($component, $export_options, $value) {
   $signature = array();
   if (isset($value['esignature']) && $value['esignature']) {
     $signature[] = t('Signed');
@@ -236,21 +238,21 @@ function _webform_csv_data_esign( $component, $export_options, $value ) {
   if (!empty($value['signer_name'])) {
     $signature[] = $value['signer_name'];
   }
-  else{
+  else {
     $signature[] = t('[BLANK]');
   }
 
   if (!empty($value['signer_title'])) {
     $signature[] = $value['signer_title'];
   }
-  else{
+  else {
     $signature[] = t('[BLANK]');
   }
 
   if (!empty($value['created'])) {
     $signature[] = date('Y-m-d', $value['created']);
   }
-  else{
+  else {
     $signature[] = t('[BLANK]');
   }
 
@@ -260,7 +262,7 @@ function _webform_csv_data_esign( $component, $export_options, $value ) {
 /**
  * Format esign component data to display as 12345678-123456-1.
  */
-function esign_webform_display_format( $value ) {
+function esign_webform_display_format($value) {
   $value = t('<div class="esignature"><img src="!signature" alt="@signer_name" /></div><div class="signer_name">@signer_name</div><div class="signer_title">@signer_title</div><div class="created">@created</div><br/>', array(
     '!signature' => $value['esignature'],
     '@signer_name' => $value['signer_name'],
@@ -276,7 +278,7 @@ function esign_webform_display_format( $value ) {
 function esign_webform_signature_signed($items, $rule) {
   $errors = array();
 
-  foreach($items as $key => $value) {
+  foreach ($items as $key => $value) {
     if (!$value['esignature']) {
       $errors[$key] = _webform_validation_i18n_error_message($rule);
     }
