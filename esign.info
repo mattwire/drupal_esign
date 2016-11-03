@@ -6,10 +6,3 @@ package = Content
 stylesheets[all][] = css/esign.css
 dependencies[] = libraries
 dependencies[] = field
-
-; Information added by Drupal.org packaging script on 2016-10-27
-version = "7.x-1.2"
-core = "7.x"
-project = "esign"
-datestamp = "1477596267"
-

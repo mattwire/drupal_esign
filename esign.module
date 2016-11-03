@@ -264,10 +264,6 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
     $title = check_plain($element['#title']);
   }
 
-  // $settings_string = '';
-  // foreach ($settings as $key => $value) {
-  //   $settings_string .= "$key:'$value',\r\n";
-  // }
   drupal_add_js(array(
     'esign' => $settings,
   ), 'setting');

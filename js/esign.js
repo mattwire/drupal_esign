@@ -1,6 +1,10 @@
-(function($) {
-  
+/**
+ * @file
+ * 
+ * Supporting file for the esign module.
+ */
 
+(function($) {
   Drupal.behaviors.esign = {
     attach: function (context, settings) {
       activateEsign();
@@ -10,12 +14,12 @@
     }
   };
 
-  $(document).ready(function() {
+  $(document).ready(function () {
     activateEsign();
   });
 
   function activateEsign() {
-    $('.esign_container').each(function(){
+    $('.esign_container').each(function (){
       var thisContainer = $(this);
       var signatureCapture;
       var canvas;
@@ -31,7 +35,7 @@
       settings = Drupal.settings.esign;
       signaturePad = new SignaturePad(canvas, {
         settings,
-        onEnd: function() {
+        onEnd: function () {
           // When a signature is done being signed, set the hidden field to contain the data.
           signatureCapture.val(signaturePad.toDataURL());
 
@@ -46,7 +50,7 @@
       thisContainer.find('.esign_panel').append('<div class="clear-container"><br/><a href="#" class="clear">Clear</a></div>');
 
       // Make the clear button work.
-      thisContainer.find('.esign_panel .clear').click(function(e) {
+      thisContainer.find('.esign_panel .clear').click(function (e) {
         e.preventDefault();
         javascript:signaturePad.clear();
         signatureCapture.val("");
@@ -57,7 +61,7 @@
       // Call the "resize" function for high-DPI screens.
       resizeCanvas(canvas, signaturePad, signatureCapture)
 
-      $(window).on("orientationchange",function() {
+      $(window).on("orientationchange",function () {
         resizeCanvas(canvas, signaturePad, signatureCapture);
       });
     });
@@ -70,7 +74,7 @@
     if (!signaturePad.isEmpty()) {
       signatureCapture.val(signaturePad.toDataURL());
     }
-    var ratio =  Math.max(window.devicePixelRatio || 1, 1);
+    var ratio = Math.max(window.devicePixelRatio || 1, 1);
     canvas.width = canvas.offsetWidth * ratio;
     canvas.height = canvas.offsetHeight * ratio;
     canvas.getContext("2d").scale(ratio, ratio);
@@ -79,7 +83,7 @@
     }
   }
 
-  $(window).resize(function() {
+  $(window).resize(function () {
     // resizeCanvas(canvas, signaturePad, signatureCapture)
   });
 
