@@ -49,6 +49,7 @@ function _webform_defaults_esign() {
       'private' => FALSE,
       'field_prefix' => '',
       'field_suffix' => '',
+      'description' => '',
     ),
   );
 }
