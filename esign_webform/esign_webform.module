@@ -1,0 +1,186 @@
+<?php
+
+/**
+ * @file
+ * Defines all hooks and functions to manage the e-sign field for webforms.
+ *
+ * This is for Webforms only.
+ */
+
+/**
+ * Implements hook_webform_component_info().
+ */
+function esign_webform_webform_component_info(){
+  $components = array();
+  $components['esign'] = array(
+    'label' => t('E-Sign'),
+    'description' => t('An E-Signature field'),
+    'features' => array(
+      'csv' => TRUE,
+      'email' => TRUE,
+      'email_address' => FALSE,
+      'email_name' => FALSE,
+      'required' => TRUE,
+      'conditional' => TRUE,
+      'title_display' => TRUE,
+      'title_inline' => FALSE,
+      'private' => TRUE,
+      'group' => FALSE,
+      'spam_analysis' => FALSE,
+      'attachment' => FALSE,
+    ),
+  );
+  return $components;
+}
+
+/**
+ * Implements _webform_defaults_component().
+ */
+function _webform_defaults_esign() {
+  return array(
+    'name' => '',
+    'form_key' => NULL,
+    'pid' => 0,
+    'weight' => 0,
+    'value' => '',
+    'mandatory' => TRUE,
+    'extra' => array(
+    //   'size' => '',
+    //   'maxlength' => '25',
+    //   'disabled' => 0,
+    //   'unique' => TRUE,
+      'title_display' => 0,
+    //   'description' => t(' The IMEI number for your device can be found inside the battery compartment, or by entering < strong >*# 06# </ strong > on the keypad.'),
+    //   'attributes' => array(),
+      'private' => FALSE,
+      'field_prefix' => '',
+      'field_suffix' => '',
+    ),
+  );
+}
+
+/**
+ * Implements _webform_edit_component().
+ */
+function _webform_edit_esign($component) {
+  $form = array();
+
+  $form['value'] = array(
+    '#type' => 'item',
+    '#markup' => '',
+  );
+
+  return $form;
+}
+
+/**
+ * Implements _webform_render_component().
+ */
+function _webform_render_esign($component, $value = NULL, $filter = TRUE) {
+  dsm($value);
+  $form_item = array(
+    '#type' => 'esign_signature',
+    '#field_name' => 'esign_signature_field',
+    '#title' => $filter ? _webform_filter_xss($component['name']) : $component['name'],
+    '#required' => $component['required'],
+    '#weight' => $component['weight'],
+    '#description' => $filter ? _webform_filter_descriptions($component['extra']['description']) : $component['extra']['description'],
+    '#default_value' => $filter ? _webform_filter_values($component['value']) : $component['value'],
+    '#prefix' => '<div class="webform-component-esign" id="webform-component-' . $component['form_key'] . '">',
+    '#suffix' => '</div>',
+  );
+
+  if (isset($value)) {
+    $form_item['#default_value'] = array(
+      'signer_name' => $value['signer_name'],
+      'signer_title' => $value['signer_title'],
+      'esignature' => $value['esignature'],
+    );
+  }
+
+  return $form_item;
+}
+
+/**
+ * Implements _webform_display_component().
+ */
+function _webform_display_esign($component, $value, $format = 'html') {
+  return array(
+    '#title' => $component['name'],
+    '#weight' => $component['weight'],
+    '#theme' => 'webform_display_esign',
+    '#theme_wrappers' => $format == 'html' ? array('webform_element') : array('webform_element_text'),
+    '#post_render' => array('webform_element_wrapper'),
+    '#field_prefix' => $component['extra']['field_prefix'],
+    '#field_suffix' => $component['extra']['field_suffix'],
+    '#component' => $component,
+    '#format' => $format,
+    '#value' => isset($value) ? esign_webform_display_format($value) : '',
+    // '#webform_component' => $component,
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function _webform_theme_esign() {
+  return array(
+    'webform_display_esign' => array(
+      'render element' => 'element',
+    ),
+  );
+}
+
+/**
+ * Format the output of data for this component.
+ */
+function theme_webform_display_esign( $variables ) {
+  $element = $variables['element'];
+  $value = $element['#format'] == 'html' ? $element['#value'] : $element['#value'];
+  return $value !== '' ? $value : '';
+}
+
+/**
+ * Return the result of a component value for display in a table.
+ */
+function _webform_table_esign( $component, $value) {
+  return check_plain( empty( $value[0]) ? '' : $value[0]);
+}
+
+/**
+ * Return the heading for this component to be displayed in a CSV file.
+ */
+function _webform_csv_headers_esign( $component, $export_options) {
+  $header = array();
+  $header[0] = '';
+  $header[1] = '';
+  $header[2] = $component['name'];
+return $header;
+}
+
+/**
+ * Format the submitted data of a component for CSV downloading.
+ */
+function _webform_csv_data_esign( $component, $export_options, $value) {
+  return !isset( $value[0]) ? '' : webform_esign_display_format( $value[0]);
+}
+
+/**
+ * Format esign component data to display as 12345678-123456-1.
+ */
+function esign_webform_display_format( $value) {
+  $value = t('<div class="esignature"><img src="!signature" alt="@signer_name" /></div><div class="signer_name">@signer_name</div><div class="signer_title">@signer_title</div><div class="created">@created</div><br/>', array(
+    '!signature' => $value['esignature'],
+    '@signer_name' => $value['signer_name'],
+    '@signer_title' => $value['signer_title'],
+    '@created' => format_date($value['created']),
+  ));
+  return $value;
+}
+
+
+
+
+
+
+
