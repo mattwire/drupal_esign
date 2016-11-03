@@ -159,8 +159,6 @@ function esign_webform_webform_validation_validate($validator_name, $items, $com
       case 'esignature_signed':
         $errors = esign_webform_signature_signed($items, $rule);
         return $errors;
-        break;
-
     }
   }
 }
