@@ -10,7 +10,7 @@
 /**
  * Implements hook_webform_component_info().
  */
-function esign_webform_webform_component_info(){
+function esign_webform_webform_component_info() {
   $components = array();
   $components['esign'] = array(
     'label' => t('E-Sign'),
@@ -87,7 +87,7 @@ function _webform_render_esign($component, $value = NULL, $filter = TRUE) {
     '#element_validate' => array('esign_webform_validate_esign'),
   );
 
-  if(isset($component['value'])){
+  if (isset($component['value'])) {
     $form_item['#default_value'] = array();
     $form_item['#default_value']['signer_title'] = $component['value'];
   }
@@ -177,18 +177,19 @@ function theme_webform_display_esign( $variables ) {
  */
 function _webform_table_esign( $component, $value ) {
   $signature = array();
-  if(isset($value['esignature']) && $value['esignature']){
+  if (isset($value['esignature']) && $value['esignature']) {
     $signature[] = t('Signed');
-  }else{
+  }
+  else {
     $signature[] = t('Not Signed');
   }
-  if(!empty($value['signer_name'])){
+  if (!empty($value['signer_name'])) {
     $signature[] = $value['signer_name'];
   }
-  if(!empty($value['signer_title'])){
+  if (!empty($value['signer_title'])) {
     $signature[] = $value['signer_title'];
   }
-  if(!empty($value['created'])){
+  if (!empty($value['created'])) {
     $signature[] = date('Y-m-d', $value['created']);
   }
   $signature = array_filter($signature);
@@ -225,27 +226,28 @@ function _webform_csv_headers_esign( $component, $export_options ) {
  */
 function _webform_csv_data_esign( $component, $export_options, $value ) {
   $signature = array();
-  if(isset($value['esignature']) && $value['esignature']){
+  if (isset($value['esignature']) && $value['esignature']) {
     $signature[] = t('Signed');
-  }else{
+  }
+  else {
     $signature[] = t('Not Signed');
   }
 
-  if(!empty($value['signer_name'])){
+  if (!empty($value['signer_name'])) {
     $signature[] = $value['signer_name'];
   }
   else{
     $signature[] = t('[BLANK]');
   }
 
-  if(!empty($value['signer_title'])){
+  if (!empty($value['signer_title'])) {
     $signature[] = $value['signer_title'];
   }
   else{
     $signature[] = t('[BLANK]');
   }
 
-  if(!empty($value['created'])){
+  if (!empty($value['created'])) {
     $signature[] = date('Y-m-d', $value['created']);
   }
   else{
@@ -271,11 +273,11 @@ function esign_webform_display_format( $value ) {
 /**
  * Form API Validation function to validate the esignature.
  */
-function esign_webform_signature_signed($items, $rule){
+function esign_webform_signature_signed($items, $rule) {
   $errors = array();
 
-  foreach($items as $key => $value){
-    if(!$value['esignature']){
+  foreach($items as $key => $value) {
+    if (!$value['esignature']) {
       $errors[$key] = _webform_validation_i18n_error_message($rule);
     }
   }
@@ -286,9 +288,9 @@ function esign_webform_signature_signed($items, $rule){
 /**
  * Form API Validation function to validate the esignature.
  */
-function esign_webform_validate_esign($form_element, &$form_state){
+function esign_webform_validate_esign($form_element, &$form_state) {
   $error = FALSE;
-  if($form_element['#required'] && !$form_element['#value']['esignature']){
+  if ($form_element['#required'] && !$form_element['#value']['esignature']) {
     $error = TRUE;
     form_error($form_element, t('A signature is required.'));
   }
