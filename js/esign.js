@@ -1,10 +1,9 @@
 /**
  * @file
- * 
  * Supporting file for the esign module.
  */
 
-(function($) {
+(function ($) {
   Drupal.behaviors.esign = {
     attach: function (context, settings) {
       activateEsign();
@@ -19,7 +18,7 @@
   });
 
   function activateEsign() {
-    $('.esign_container').each(function (){
+    $('.esign_container').each(function () {
       var thisContainer = $(this);
       var signatureCapture;
       var canvas;
@@ -34,7 +33,7 @@
       // Instantiate the signaturepad itself.
       settings = Drupal.settings.esign;
       signaturePad = new SignaturePad(canvas, {
-        settings,
+        settings
         onEnd: function () {
           // When a signature is done being signed, set the hidden field to contain the data.
           signatureCapture.val(signaturePad.toDataURL());
