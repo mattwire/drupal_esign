@@ -264,92 +264,23 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
     $title = check_plain($element['#title']);
   }
 
-  $settings_string = '';
-  foreach ($settings as $key => $value) {
-    $settings_string .= "$key:'$value',\r\n";
-  }
+  // $settings_string = '';
+  // foreach ($settings as $key => $value) {
+  //   $settings_string .= "$key:'$value',\r\n";
+  // }
+  drupal_add_js(array(
+    'esign' => $settings,
+  ), 'setting');
+
+  drupal_add_js(array(
+    'esign_clear_text' => t('Clear'),
+  ), 'setting');
 
   // Load the signature pad library.
   // Note this is a lot of inline javascript, unfortunately.
   // I'll try to think of a better way around this.
   if (($library = libraries_load('signature_pad')) && !empty($library['loaded'])) {
-    $clear = t('Clear');
-    drupal_add_js('var canvas_' . $delta . ';var signaturePad_' . $delta . ';(function($) {
-      var signatureCapture;
-
-      Drupal.behaviors.esign_' . $delta . ' = {
-        attach: function (context, settings) {
-          generateFieldInfo();
-        },
-        detach: function (context, settings) {
-          generateFieldInfo();
-        }
-      };
-
-      $(document).ready(function() {
-        generateFieldInfo();
-      });
-
-      function generateFieldInfo() {
-        // Assign the hidden field (that saves the signature) to a variable.
-        signatureCapture = $("input[name=\"' . $field_name . '[esignature]\"]");
-
-        // Set the canvas to a variable.
-        canvas_' . $delta . ' = document.querySelector(".esign_panel_' . $delta . ' canvas");
-
-        // Instantiate the signaturepad itself.
-        signaturePad_' . $delta . ' = new SignaturePad(canvas_' . $delta . ', {
-          ' . $settings_string . '
-          onEnd: function() {
-            // When a signature is done being signed, set the hidden field to contain the data.
-            signatureCapture.val(signaturePad_' . $delta . '.toDataURL());
-
-            // Also set the data-signature value.
-            $(".esign_panel_' . $delta . '").attr("data-signature", signaturePad_' . $delta . '.toDataURL());
-          }
-        });
-
-        // Add the "clear" button.
-        $(".esign_panel_' . $delta . ' .clear-container").remove();
-        $(".esign_panel_' . $delta . '").append("<div class=\"clear-container\"><br/><a href=\"#\" class=\"clear\">' . $clear . '</a></div>");
-
-        // Make the clear button work.
-        $(".esign_panel_' . $delta . ' .clear").click(function(e) {
-          e.preventDefault();
-          javascript:signaturePad_' . $delta . '.clear();
-          signatureCapture.val("");
-          $(".esign_panel_' . $delta . '").attr("data-signature", "");
-          resizeCanvas(canvas_' . $delta . ');
-        });
-
-        // Call the "resize" function for high-DPI screens.
-        resizeCanvas(canvas_' . $delta . ');
-      }
-
-      function resizeCanvas(canvas) {
-        // When zoomed out to less than 100%, for some very strange reason,
-        // some browsers report devicePixelRatio as less than 1
-        // and only part of the canvas is cleared then.
-        if (!signaturePad_' . $delta . '.isEmpty()) {
-          signatureCapture.val(signaturePad_' . $delta . '.toDataURL());
-        }
-        var ratio =  Math.max(window.devicePixelRatio || 1, 1);
-        canvas.width = canvas.offsetWidth * ratio;
-        canvas.height = canvas.offsetHeight * ratio;
-        canvas.getContext("2d").scale(ratio, ratio);
-        if (signatureCapture.val()) {
-          signaturePad_' . $delta . '.fromDataURL(decodeURIComponent(signatureCapture.val()));
-        }
-      }
-
-      $(window).resize(function() {
-        // resizeCanvas(canvas_' . $delta . ');
-      });
-
-      $(window).on("orientationchange",function() {
-        resizeCanvas(canvas_' . $delta . ');
-      });
-    })(jQuery);', 'inline');
+    drupal_add_js(drupal_get_path('module', 'esign') . '/js/esign.js');
   }
   else {
     watchdog('esign', 'Failed to load Signature Pad library.', array(), WATCHDOG_ERROR);
@@ -365,6 +296,9 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
 
   $element['esignature'] = array(
     '#type' => 'hidden',
+    '#attributes' => array(
+      'class' => array('signature-storage'),
+    ),
     '#default_value' => isset($items[$delta]['esignature']) ? $items[$delta]['esignature'] : '',
   );
 
@@ -388,8 +322,11 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
 
   $element['created'] = array(
     '#type' => 'hidden',
-    '#value' => strtotime('now'),
-    '#prefix' => '</div>',
+    '#default_value' => isset($items[$delta]['created']) ? $items[$delta]['created'] : strtotime('now'),
+    '#suffix' => '</div>',
+    '#attributes' => array(
+      'class' => array('signature-created'),
+    ),
   );
 
   if (isset($element['#value']) && is_array($element['#value'])) {
