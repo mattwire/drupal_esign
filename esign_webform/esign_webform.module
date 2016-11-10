@@ -46,13 +46,10 @@ function _webform_defaults_esign() {
     'mandatory' => TRUE,
     'extra' => array(
       'title_display' => 0,
-      'disabled' => 0,
       'private' => FALSE,
       'field_prefix' => '',
       'field_suffix' => '',
       'description' => '',
-      'attributes' => array(),
-      'private' => FALSE,
     ),
   );
 }
@@ -82,17 +79,13 @@ function _webform_render_esign($component, $value = NULL, $filter = TRUE) {
     '#type' => 'esign_signature',
     '#field_name' => 'esign_signature_field',
     '#title' => $filter ? _webform_filter_xss($component['name']) : $component['name'],
-    '#title_display' => $component['extra']['title_display'] ? $component['extra']['title_display'] : 'before',
-    '#required' => $component['mandatory'],
+    '#required' => $component['required'],
     '#weight' => $component['weight'],
     '#description' => $filter ? _webform_filter_descriptions($component['extra']['description']) : $component['extra']['description'],
     '#default_value' => $filter ? _webform_filter_values($component['value']) : $component['value'],
     '#prefix' => '<div class="webform-component-esign" id="webform-component-' . $component['form_key'] . '">',
     '#suffix' => '</div>',
     '#element_validate' => array('esign_webform_validate_esign'),
-    '#webform_component' => $component,
-    '#attributes' => $component['extra']['attributes'],
-    '#theme_wrappers' => array('webform_element'),
   );
 
   if (isset($component['value'])) {

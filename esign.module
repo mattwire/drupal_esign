@@ -283,11 +283,19 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
     form_set_error(t('There was an error loading the Signature Pad library.'));
   }
 
+  $description = '';
+  if($element['#description']){
+    $description = t('<div class="description">!description</div>', array(
+      '!description' => str_replace("\r\n", "<br />", $element['#description']),
+    ));
+  }
+  $markup = '<div class="esign_panel esign_panel_' . $delta . '" data-signature="' . urlencode(isset($items[$delta]['esignature']) ? $items[$delta]['esignature'] : '') . '">' . $description . '<canvas></canvas></div>';
+
   $element['esignature_panel'] = array(
     '#prefix' => '<div class="esign_container">',
     '#type' => 'item',
     '#title' => $title,
-    '#markup' => '<div class="esign_panel esign_panel_' . $delta . '" data-signature="' . urlencode(isset($items[$delta]['esignature']) ? $items[$delta]['esignature'] : '') . '"><canvas></canvas></div>',
+    '#markup' => $markup,
   );
 
   $element['esignature'] = array(
