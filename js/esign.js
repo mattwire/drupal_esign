@@ -20,6 +20,7 @@
   function activateEsign() {
     $('.esign_container').each(function () {
       var thisContainer = $(this);
+      var settings = JSON.parse($(this).attr('data-settings'));
       var signatureCapture;
       var canvas;
       var signaturePad;
@@ -31,18 +32,15 @@
       canvas = thisContainer.find('canvas')[0];
 
       // Instantiate the signaturepad itself.
-      settings = Drupal.settings.esign;
-      signaturePad = new SignaturePad(canvas, {
-        settings: settings,
-        onEnd: function () {
-          // When a signature is done being signed, set the hidden field to contain the data.
-          signatureCapture.val(signaturePad.toDataURL());
+      settings.onEnd = function () {
+        // When a signature is done being signed, set the hidden field to contain the data.
+        signatureCapture.val(signaturePad.toDataURL());
 
-          // Also set the data-signature value.
-          thisContainer.find('.esign_panel').attr("data-signature", signaturePad.toDataURL());
-          thisContainer.find('.signature-created').val(Math.ceil(Date.now() / 1000));
-        }
-      });
+        // Also set the data-signature value.
+        thisContainer.find('.esign_panel').attr("data-signature", signaturePad.toDataURL());
+        thisContainer.find('.signature-created').val(Math.ceil(Date.now() / 1000));
+      };
+      signaturePad = new SignaturePad(canvas, settings);
 
       // Add the "clear" button.
       thisContainer.find('.esign_panel .clear-container').remove();

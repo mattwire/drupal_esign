@@ -63,7 +63,7 @@ function esign_field_widget_info() {
  */
 function esign_field_widget_settings_form($field, $instance) {
   $widget = $instance['widget'];
-  $settings = $widget['settings'];
+  $settings = $widget['settings']['advanced_settings'];
 
   $form = array();
 
@@ -264,14 +264,6 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
     $title = check_plain($element['#title']);
   }
 
-  drupal_add_js(array(
-    'esign' => $settings,
-  ), 'setting');
-
-  drupal_add_js(array(
-    'esign_clear_text' => t('Clear'),
-  ), 'setting');
-
   // Load the signature pad library.
   // Note this is a lot of inline javascript, unfortunately.
   // I'll try to think of a better way around this.
@@ -292,7 +284,7 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
   $markup = '<div class="esign_panel esign_panel_' . $delta . '" data-signature="' . urlencode(isset($items[$delta]['esignature']) ? $items[$delta]['esignature'] : '') . '">' . $description . '<canvas></canvas></div>';
 
   $element['esignature_panel'] = array(
-    '#prefix' => '<div class="esign_container">',
+    '#prefix' => '<div class="esign_container" data-settings=\'' . json_encode($settings) . '\'>',
     '#type' => 'item',
     '#title' => $title,
     '#markup' => $markup,
