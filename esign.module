@@ -276,7 +276,7 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
   }
 
   $description = '';
-  if($element['#description']){
+  if ($element['#description']) {
     $description = t('<div class="description">!description</div>', array(
       '!description' => str_replace("\r\n", "<br />", $element['#description']),
     ));
