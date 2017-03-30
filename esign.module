@@ -176,12 +176,12 @@ function esign_libraries_info() {
     'vendor url' => 'https://github.com/szimek/signature_pad',
     'download url' => 'https://github.com/szimek/signature_pad/archive/master.zip',
     'version arguments' => array(
-      'file' => 'signature_pad.js',
+      'file' => 'example/js/signature_pad.js',
       'pattern' => '@Signature Pad v([0-9a-zA-Z\.-]+)@',
       'lines' => 20,
     ),
     'files' => array(
-      'js' => array('signature_pad.min.js'),
+      'js' => array('example/js/signature_pad.js'),
     ),
   );
   return $libraries;
@@ -265,8 +265,6 @@ function esign_signature_form_base($langcode, $items, $delta, $element, $setting
   }
 
   // Load the signature pad library.
-  // Note this is a lot of inline javascript, unfortunately.
-  // I'll try to think of a better way around this.
   if (($library = libraries_load('signature_pad')) && !empty($library['loaded'])) {
     drupal_add_js(drupal_get_path('module', 'esign') . '/js/esign.js');
   }

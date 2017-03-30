@@ -32,7 +32,7 @@ This module requires the following module:
 
 It also requires the following third-party library:
 
- * Signature Pad (https://github.com/szimek/signature_pad)
+ * Signature Pad 1.6+ (https://github.com/szimek/signature_pad)
 
 RECOMMENDED MODULES
 -------------------
@@ -80,9 +80,9 @@ TROUBLESHOOTING
 FAQ
 ---
 
-Q: I don't have any questions.
+Q: The signature field isn't working!
 
-A: Great!
+A: Please make sure you're using the correct version of Signature Pad.
 
 MAINTAINERS
 -----------
