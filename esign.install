@@ -61,7 +61,6 @@ function esign_requirements($phase) {
     );
 
     $library = libraries_detect('signature_pad');
-    dsm($library);
 
     if (isset($library['error'])) {
       $requirements['signature_pad']['severity'] = REQUIREMENT_ERROR;
