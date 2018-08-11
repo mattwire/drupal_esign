@@ -50,6 +50,8 @@ function _webform_defaults_esign() {
       'field_prefix' => '',
       'field_suffix' => '',
       'description' => '',
+      'collect_name' => TRUE,
+      'collect_title' => TRUE,
     ),
   );
 }
@@ -62,10 +64,24 @@ function _webform_edit_esign($component) {
 
   $form['value'] = array(
     '#type' => 'textfield',
-    '#title' => t('Default Signor Title'),
+    '#title' => t('Default Signer Title'),
     '#default_value' => $component['value'],
-    '#description' => t('The default "title" of the signor.'),
+    '#description' => t('The default "title" of the signer.'),
     '#maxlength' => 255,
+  );
+
+  $form['extra']['collect_name'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Collect Signer Name',
+    '#default_value' => $component['extra']['collect_name'],
+    '#description' => t('Display a Signer Name field below the signature box.'),
+  );
+
+  $form['extra']['collect_title'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Collect Signer Title',
+    '#default_value' => $component['extra']['collect_title'],
+    '#description' => t('Display a Signer Title field below the signature box.'),
   );
 
   return $form;
@@ -80,6 +96,8 @@ function _webform_render_esign($component, $value = NULL, $filter = TRUE) {
     '#field_name' => 'esign_signature_field',
     '#title' => $filter ? _webform_filter_xss($component['name']) : $component['name'],
     '#required' => $component['required'],
+    '#collect_name' => $component['extra']['collect_name'],
+    '#collect_title' => $component['extra']['collect_title'],
     '#weight' => $component['weight'],
     '#description' => $filter ? _webform_filter_descriptions($component['extra']['description']) : $component['extra']['description'],
     '#default_value' => $filter ? _webform_filter_values($component['value']) : $component['value'],
